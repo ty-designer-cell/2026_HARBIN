@@ -292,7 +292,10 @@ const b=document.body;$('#bg').onclick=()=>b.classList.toggle('open');
 $$('.menu a').forEach(a=>a.onclick=()=>b.classList.remove('open'));
 /* reveal on view */
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');io.unobserve(e.target)}}),{threshold:.15});
-$$('.rv,.sp,.mask,.rule').forEach(e=>io.observe(e));
+$$('.rv,.sp,.rule').forEach(e=>io.observe(e));
+/* .mask is clipped to nothing until revealed, and current Chrome counts that clip as zero visible area, so observe the parent instead */
+const mio=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){[...e.target.children].forEach(m=>m.classList.contains('mask')&&m.classList.add('on'));mio.unobserve(e.target)}}),{threshold:.15});
+new Set($$('.mask').map(m=>m.parentElement)).forEach(p=>mio.observe(p));
 /* glitter canvases (only drawn while visible) */
 const G=$$('canvas.gl').map(c=>({c,x:c.getContext('2d'),v:false,s:[]}));
 function gs(o){const r=o.c.getBoundingClientRect();o.c.width=r.width;o.c.height=r.height;o.s=Array.from({length:Math.round(r.width*r.height/7000)},()=>({x:Math.random()*r.width,y:Math.random()*r.height,r:Math.random()*1.5+.5,p:Math.random()*6,f:.5+Math.random()*1.5}))}
